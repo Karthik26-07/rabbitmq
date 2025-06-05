@@ -1,10 +1,10 @@
 services:
   - type: web
-    name: rabbitmq-ui
+    name: rabbitmq
     env: docker
     plan: free
     disk:
-      name: rabbitmq-ui-disk
+      name: rabbitmq-disk
       mountPath: /var/lib/rabbitmq
       sizeGB: 1
     envVars:
@@ -16,29 +16,9 @@ services:
         generateValue: true
     startCommand: >
       sh -c "
-        rabbitmq-server &
-        sleep 10 &&
-        socat TCP-LISTEN:80,fork TCP:localhost:15672
-      "
-
-  - type: web
-    name: rabbitmq-amqp
-    env: docker
-    plan: free
-    disk:
-      name: rabbitmq-amqp-disk
-      mountPath: /var/lib/rabbitmq
-      sizeGB: 1
-    envVars:
-      - key: RABBITMQ_ERLANG_COOKIE
-        generateValue: true
-      - key: RABBITMQ_DEFAULT_USER
-        value: rabbitmq
-      - key: RABBITMQ_DEFAULT_PASS
-        generateValue: true
-    startCommand: >
-      sh -c "
-        rabbitmq-server &
-        sleep 10 &&
-        socat TCP-LISTEN:80,fork TCP:localhost:5672
+        rabbitmq-server & 
+        sleep 10 && 
+        socat TCP-LISTEN:80,fork TCP:localhost:5672 &
+        socat TCP-LISTEN:15672,fork TCP:localhost:15672 &&
+        wait
       "
